@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Woma — Your Finance Buddy</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--surface:#fff;--surface2:#f0ede8;
+  --border:#e2ddd6;--border2:#ccc8c0;
+  --text:#1a1916;--text2:#6b6860;--text3:#9e9b96;
+  --green:#1D9E75;--green-bg:#e1f5ee;--green-text:#085041;
+  --amber:#BA7517;--amber-bg:#faeeda;--amber-text:#633806;
+  --red:#c0392b;--red-bg:#fcebeb;
+  --accent:#1D9E75;--radius:10px;--radius-lg:14px;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;min-height:100vh}
+.app{max-width:800px;margin:0 auto;padding:24px 16px 120px}
+
+/* header */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.hdr-title{font-size:22px;font-weight:500;letter-spacing:-0.3px}
+.hdr-title span{color:var(--accent)}
+.rate-pill{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:5px 13px;font-size:14px;color:var(--text2)}
+.rate-pill input{width:56px;border:none;background:transparent;font-family:var(--mono);font-size:14px;color:var(--text);font-weight:500;outline:none;text-align:right}
+.btn-settings{background:var(--surface);border:1px solid var(--border);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:all 0.15s}
+.btn-settings:hover{background:var(--surface2);color:var(--text)}
+.settings-group{margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid var(--border)}
+.settings-group:last-child{border-bottom:none}
+.settings-label{font-size:13px;font-weight:500;margin-bottom:10px;display:block}
+.settings-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn-outline{padding:8px 14px;border:1px solid var(--border);background:#fff;border-radius:var(--radius);font-family:var(--font);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-outline:hover{background:var(--surface2)}
+
+/* stats grid — 4 cols all-time, 4 cols this month */
+.stats-section{margin-bottom:18px}
+.stats-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.stats-heading{font-size:11px;font-weight:500;letter-spacing:0.07em;color:var(--text3);text-transform:uppercase}
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.stats-grid.hidden{display:none}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 10px;text-align:center}
+.stat-label{font-size:11px;color:var(--text2);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.04em}
+.stat-val{font-size:18px;font-weight:500;font-family:var(--mono);color:var(--text)}
+.stat-val.green{color:var(--green)}
+.stat-val.amber{color:var(--amber)}
+
+/* card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-bottom:14px}
+.section-label{font-size:11px;font-weight:500;letter-spacing:0.08em;color:var(--text3);text-transform:uppercase;margin-bottom:12px}
+
+/* view toggle */
+.view-toggle{display:flex;gap:3px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:3px;width:fit-content}
+.vt-btn{padding:5px 12px;border:1px solid transparent;background:transparent;border-radius:7px;font-family:var(--font);font-size:13px;color:var(--text2);cursor:pointer;transition:all 0.12s}
+.vt-btn.active{background:var(--surface);color:var(--text);font-weight:500;border-color:var(--border)}
+
+/* period blocks */
+.period-block{margin-bottom:7px;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;background:var(--surface)}
+.period-header{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;cursor:pointer;user-select:none;transition:background 0.12s;gap:8px}
+.period-header:hover{background:var(--surface2)}
+.period-left{flex:1;min-width:0}
+.period-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.period-meta{font-size:12px;color:var(--text2);margin-top:1px}
+.period-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.period-earn{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--green)}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:500}
+.badge-paid{background:var(--green-bg);color:var(--green-text)}
+.chevron{width:13px;height:13px;border-right:1.5px solid var(--text3);border-bottom:1.5px solid var(--text3);transform:rotate(45deg);transition:transform 0.2s;flex-shrink:0;margin-bottom:2px}
+.chevron.up{transform:rotate(-135deg)}
+.period-body{border-top:1px solid var(--border)}
+.period-body.collapsed{display:none}
+
+/* tables */
+.inner-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+.inner-table th{text-align:left;font-size:11px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:var(--text3);padding:9px 12px 7px;border-bottom:1px solid var(--border)}
+.inner-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.inner-table tr:last-child td{border-bottom:none}
+.inner-table tr:hover td{background:var(--surface2)}
+
+.period-footer{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--surface2);border-top:1px solid var(--border);flex-wrap:wrap;gap:7px}
+.footer-stats{display:flex;gap:12px;font-family:var(--mono);font-size:12px;flex-wrap:wrap;color:var(--text)}
+
+.empty-state{text-align:center;padding:26px 16px;color:var(--text3);font-size:14px}
+
+/* pay history */
+.pay-row{display:flex;align-items:center;justify-content:space-between;padding:9px 15px;border-bottom:1px solid var(--border);gap:10px}
+.pay-row:last-child{border-bottom:none}
+
+/* inline buttons */
+.btn-paid{color:var(--green-text);background:var(--green-bg);border:none;font-size:12px;padding:4px 10px;border-radius:7px;white-space:nowrap;font-family:var(--font);font-weight:500;cursor:pointer;transition:background 0.15s}
+.btn-paid:hover{background:#9FE1CB}
+.btn-undo{color:var(--amber-text);background:var(--amber-bg);border:none;font-size:12px;padding:4px 9px;border-radius:7px;font-family:var(--font);font-weight:500;cursor:pointer}
+.btn-undo:hover{opacity:0.75}
+.btn-del{color:var(--red);background:transparent;border:none;font-size:12px;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:var(--font)}
+.btn-del:hover{background:var(--red-bg)}
+
+/* ── FLOATING ADD BUTTON ── */
+.fab{
+  position:fixed;bottom:28px;right:24px;
+  width:56px;height:56px;border-radius:50%;
+  background:var(--accent);color:#fff;border:none;
+  font-size:28px;line-height:1;cursor:pointer;
+  box-shadow:0 4px 16px rgba(29,158,117,0.35);
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.15s,transform 0.15s;
+  z-index:100;
+}
+.fab:hover{background:#0F6E56;transform:scale(1.07)}
+.fab:active{transform:scale(0.95)}
+
+/* ── MODAL ── */
+.modal-backdrop{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(26,25,22,0.45);
+  z-index:200;
+  align-items:flex-end;
+  justify-content:center;
+}
+.modal-backdrop.open{display:flex}
+.modal{
+  background:var(--surface);
+  border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+  padding:24px 20px 32px;
+  width:100%;max-width:520px;
+  animation:slideUp 0.22s ease;
+}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto 20px}
+.modal-title{font-size:16px;font-weight:500;margin-bottom:16px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:12px;color:var(--text2);font-weight:500}
+.form-group input{border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg);outline:none;transition:border 0.15s}
+.form-group input:focus{border-color:var(--accent)}
+.preview-bar{background:var(--green-bg);border-radius:var(--radius);padding:9px 13px;font-size:13px;color:var(--green-text);font-family:var(--mono);min-height:36px;margin-bottom:12px;display:flex;align-items:center}
+.modal-btns{display:grid;grid-template-columns:1.5fr 1fr;gap:10px;margin-top:15px}
+.btn-add-shift{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-family:var(--font);font-size:15px;font-weight:500;cursor:pointer;transition:background 0.15s}
+.btn-add-shift:hover{background:#0F6E56}
+.btn-cancel{width:100%;padding:11px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font);font-size:14px;cursor:pointer}
+.btn-cancel:hover{background:var(--surface2)}
+
+@media(max-width:560px){
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat-val{font-size:16px}
+  .inner-table th:nth-child(3),.inner-table td:nth-child(3){display:none}
+  .period-right{gap:5px}
+  .form-row{grid-template-columns:1fr}
+  .modal{border-radius:var(--radius-lg)}
+  .modal-backdrop{align-items:center;padding:16px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="hdr">
+    <div class="hdr-title">Woma <span>Finance Buddy</span></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="rate-pill">
+        <span>£</span>
+        <input type="number" id="hourly-rate" value="12.50" min="0" step="0.50" title="Hourly rate">
+        <span>/ hr</span>
+      </div>
+      <button class="btn-settings" onclick="openSettings()" title="Settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats section with toggle -->
+  <div class="stats-section">
+    <div class="stats-header">
+      <div class="stats-heading" id="stats-title">This month</div>
+      <div class="view-toggle">
+        <button class="vt-btn active" id="btn-stat-mo" onclick="setStatView('month')">Month</button>
+        <button class="vt-btn" id="btn-stat-at" onclick="setStatView('all')">All Time</button>
+      </div>
+    </div>
+
+    <!-- Monthly Stats -->
+    <div class="stats-grid" id="stats-month">
+      <div class="stat"><div class="stat-label">Hours</div><div class="stat-val" id="mo-hours">0.00h</div></div>
+      <div class="stat"><div class="stat-label">Earned</div><div class="stat-val green" id="mo-earned">£0.00</div></div>
+      <div class="stat"><div class="stat-label">Received</div><div class="stat-val green" id="mo-paid">£0.00</div></div>
+      <div class="stat"><div class="stat-label">Owed</div><div class="stat-val amber" id="mo-owed">£0.00</div></div>
+    </div>
+
+    <!-- All-time Stats -->
+    <div class="stats-grid hidden" id="stats-all">
+      <div class="stat"><div class="stat-label">Hours</div><div class="stat-val" id="at-hours">0.00h</div></div>
+      <div class="stat"><div class="stat-label">Earned</div><div class="stat-val green" id="at-earned">£0.00</div></div>
+      <div class="stat"><div class="stat-label">Received</div><div class="stat-val green" id="at-paid">£0.00</div></div>
+      <div class="stat"><div class="stat-label">Owed</div><div class="stat-val amber" id="at-owed">£0.00</div></div>
+    </div>
+  </div>
+
+  <!-- Shifts & pay -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div class="section-label" style="margin-bottom:0">Shifts &amp; pay status</div>
+      <div class="view-toggle">
+        <button class="vt-btn" onclick="setView('day',this)">Day</button>
+        <button class="vt-btn active" onclick="setView('week',this)">Week</button>
+        <button class="vt-btn" onclick="setView('month',this)">Month</button>
+        <button class="vt-btn" onclick="setView('all',this)">All</button>
+      </div>
+    </div>
+    <div id="periods-area"></div>
+  </div>
+
+  <!-- Payment history -->
+  <div class="card">
+    <div class="section-label">Payment history</div>
+    <div id="pay-history-area"></div>
+  </div>
+
+</div>
+
+<!-- Floating add button -->
+<button class="fab" onclick="openModal()" title="Log a shift">+</button>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modal-backdrop" onclick="backdropClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Log a shift</div>
+    <div class="form-row">
+      <div class="form-group"><label>Date</label><input type="date" id="inp-date"></div>
+      <div class="form-group">
+        <label>Shift rate (£)</label>
+        <input type="number" id="inp-rate" step="0.50" placeholder="Default">
+        <div id="modal-rate-hint" style="font-size:10px;color:var(--text3);margin-top:2px">Default: £12.50/h</div>
+      </div>
+      <div class="form-group"><label>Start time</label><input type="time" id="inp-start"></div>
+      <div class="form-group"><label>End time</label><input type="time" id="inp-end"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label>Note (optional)</label>
+      <input type="text" id="inp-note" placeholder="e.g. Monday shift">
+    </div>
+    <div class="preview-bar" id="preview-bar">Enter start and end time to preview</div>
+    <div class="modal-btns">
+      <button class="btn-add-shift" onclick="addShift()">Save shift</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-backdrop" id="settings-backdrop" onclick="settingsBackdropClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Settings</div>
+    
+    <div class="settings-group">
+      <label class="settings-label">Hourly Rate</label>
+      <div class="rate-pill" style="width:fit-content; padding: 8px 15px">
+        <span>£</span>
+        <input type="number" id="settings-rate" step="0.50" style="width: 80px; font-size: 16px">
+        <span>/ hr</span>
+      </div>
+      <p style="font-size:12px; color:var(--text2); margin-top:8px">This is the default rate for all your shifts.</p>
+    </div>
+
+    <div class="settings-group">
+      <label class="settings-label">Data Management</label>
+      <div class="settings-actions">
+        <button class="btn-outline" onclick="exportData()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Export Backup
+        </button>
+        <button class="btn-outline" onclick="document.getElementById('import-input').click()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          Import Backup
+        </button>
+        <input type="file" id="import-input" style="display:none" accept=".json" onchange="importData(event)">
+      </div>
+    </div>
+
+    <button class="btn-add-shift" onclick="closeSettings()" style="margin-top:10px">Done</button>
+  </div>
+</div>
+
+<script>
+let shifts   = JSON.parse(localStorage.getItem('wt_shifts_v4')||'[]');
+let payments = JSON.parse(localStorage.getItem('wt_pay_v4')||'[]');
+let savedRate = localStorage.getItem('wt_rate_v4');
+
+// Immediately set the rate if saved
+document.addEventListener('DOMContentLoaded', () => {
+  if(savedRate) document.getElementById('hourly-rate').value = savedRate;
+  renderAll(); // Ensure first render uses the absolute latest value
+});
+
+let currentView = 'week';
+
+const todayStr = () => new Date().toISOString().split('T')[0];
+
+function save(){
+  localStorage.setItem('wt_shifts_v4', JSON.stringify(shifts));
+  localStorage.setItem('wt_pay_v4',    JSON.stringify(payments));
+  localStorage.setItem('wt_rate_v4',   getRate());
+}
+
+function getRate(){ return parseFloat(document.getElementById('hourly-rate').value)||0; }
+function getShiftRate(s){ return (s && s.rate) ? s.rate : getRate(); }
+
+function calcHours(s,e){
+  const[sh,sm]=s.split(':').map(Number);
+  const[eh,em]=e.split(':').map(Number);
+  let m=(eh*60+em)-(sh*60+sm);
+  if(m<0)m+=1440;
+  return m/60;
+}
+
+function fh(h){ return h.toFixed(2)+'h'; }
+function fm(n){ return '£'+Math.abs(n).toFixed(2); }
+function fd(d){
+  const[y,mo,day]=d.split('-');
+  return parseInt(day)+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(mo)-1]+' '+y;
+}
+function mname(m){ return ['January','February','March','April','May','June','July','August','September','October','November','December'][parseInt(m)-1]; }
+
+function weekKey(dateStr){
+  const d=new Date(dateStr+'T12:00:00'),mon=new Date(d);
+  mon.setDate(d.getDate()-((d.getDay()+6)%7));
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  const f=dt=>dt.toISOString().split('T')[0];
+  return f(mon)+'__'+f(sun);
+}
+
+function paidFor(key,type){
+  return payments.filter(p=>p.periodKey===key&&p.type===type).reduce((a,b)=>a+b.amount,0);
+}
+
+/* ── modal ── */
+function openModal(){
+  document.getElementById('inp-date').value = todayStr();
+  document.getElementById('inp-start').value='';
+  document.getElementById('inp-end').value='';
+  document.getElementById('inp-note').value='';
+  document.getElementById('inp-rate').value='';
+  document.getElementById('modal-rate-hint').textContent = `Default: £${getRate().toFixed(2)}/h`;
+  document.getElementById('preview-bar').textContent='Enter start and end time to preview';
+  document.getElementById('modal-backdrop').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('modal-backdrop').classList.remove('open');
+}
+function backdropClick(e){
+  if(e.target===document.getElementById('modal-backdrop')) closeModal();
+}
+
+/* ── settings ── */
+function openSettings(){
+  document.getElementById('settings-rate').value = getRate();
+  document.getElementById('settings-backdrop').classList.add('open');
+}
+function closeSettings(){
+  const newRate = parseFloat(document.getElementById('settings-rate').value);
+  if(!isNaN(newRate)) {
+    document.getElementById('hourly-rate').value = newRate;
+    save();
+    renderAll();
+  }
+  document.getElementById('settings-backdrop').classList.remove('open');
+}
+function settingsBackdropClick(e){
+  if(e.target===document.getElementById('settings-backdrop')) closeSettings();
+}
+
+function exportData(){
+  const data = { shifts, payments, rate: getRate(), version: '4.0' };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `woma_backup_${todayStr()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    try {
+      const data = JSON.parse(event.target.result);
+      if(data.shifts) shifts = data.shifts;
+      if(data.payments) payments = data.payments;
+      if(data.rate) document.getElementById('hourly-rate').value = data.rate;
+      save();
+      renderAll();
+      alert('Data imported successfully!');
+    } catch(err) {
+      alert('Error importing data: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = ''; // Reset input
+}
+
+/* ── preview ── */
+function updatePreview(){
+  const s=document.getElementById('inp-start').value;
+  const e=document.getElementById('inp-end').value;
+  const r_over=parseFloat(document.getElementById('inp-rate').value);
+  const el=document.getElementById('preview-bar');
+  if(s&&e){
+    const h=calcHours(s,e),r=isNaN(r_over)?getRate():r_over;
+    el.textContent=fh(h)+'  ×  £'+r.toFixed(2)+'/hr  =  '+fm(h*r);
+  } else {
+    el.textContent='Enter start and end time to preview';
+  }
+}
+document.getElementById('inp-start').addEventListener('input',updatePreview);
+document.getElementById('inp-end').addEventListener('input',updatePreview);
+document.getElementById('inp-rate').addEventListener('input',updatePreview);
+document.getElementById('hourly-rate').addEventListener('input',()=>{updatePreview();renderAll();save();});
+
+/* ── add / remove ── */
+function addShift(){
+  const date=document.getElementById('inp-date').value;
+  const start=document.getElementById('inp-start').value;
+  const end=document.getElementById('inp-end').value;
+  const rate_override=parseFloat(document.getElementById('inp-rate').value);
+  const note=document.getElementById('inp-note').value.trim();
+  
+  if(!date||!start||!end){alert('Please fill in date, start time, and end time.');return;}
+  
+  const shift = {id:Date.now(),date,start,end,note,hours:calcHours(start,end)};
+  if(!isNaN(rate_override)) shift.rate = rate_override;
+  
+  shifts.unshift(shift);
+  save();renderAll();closeModal();
+}
+
+function removeShift(id){
+  if(!confirm('Remove this shift?'))return;
+  shifts=shifts.filter(s=>s.id!==id);
+  save();renderAll();
+}
+
+function markPaid(key,type,label,amount){
+  payments.unshift({id:Date.now(),type,periodKey:key,amount:parseFloat(amount),date:todayStr(),label});
+  save();renderAll();
+}
+
+function undoPaid(id){
+  payments=payments.filter(p=>p.id!==id);
+  save();renderAll();
+}
+
+function setView(v,btn){
+  currentView=v;
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPeriods();
+}
+
+function setStatView(v){
+  const moGrid = document.getElementById('stats-month');
+  const atGrid = document.getElementById('stats-all');
+  const moBtn = document.getElementById('btn-stat-mo');
+  const atBtn = document.getElementById('btn-stat-at');
+  const title = document.getElementById('stats-title');
+
+  if(v==='month'){
+    moGrid.classList.remove('hidden');
+    atGrid.classList.add('hidden');
+    moBtn.classList.add('active');
+    atBtn.classList.remove('active');
+    title.textContent = 'This month';
+  } else {
+    moGrid.classList.add('hidden');
+    atGrid.classList.remove('hidden');
+    moBtn.classList.remove('active');
+    atBtn.classList.add('active');
+    title.textContent = 'All time';
+  }
+}
+
+/* ── render all ── */
+function renderAll(){
+  renderStats();
+  renderPeriods();
+  renderPayHistory();
+}
+
+function renderStats(){
+  const rate=getRate();
+  const thisMonth=todayStr().slice(0,7);
+
+  let atE=0, moE=0, atH=0, moH=0;
+  shifts.forEach(s=>{
+    atH+=s.hours;
+    const sRate = getShiftRate(s);
+    atE += (s.hours * sRate);
+    if(s.date.slice(0,7)===thisMonth) {
+      moH+=s.hours;
+      moE += (s.hours * sRate);
+    }
+  });
+
+  let atP=0;
+  payments.forEach(p=>atP+=p.amount);
+
+  // month paid = payments whose periodKey includes this month's shifts
+  // simplest accurate approach: sum payments of type 'month' for this month key,
+  // plus for week/day payments whose shifts fall in this month
+  let moP=0;
+  payments.forEach(p=>{
+    if(p.type==='month'&&p.periodKey===thisMonth){ moP+=p.amount; return; }
+    if(p.type==='week'){
+      const[a,b]=p.periodKey.split('__');
+      if(a.slice(0,7)===thisMonth||b.slice(0,7)===thisMonth){
+        const weekShifts=shifts.filter(s=>weekKey(s.date)===p.periodKey);
+        const weekEarn=weekShifts.reduce((acc,s)=>acc+s.hours*getShiftRate(s),0);
+        const moWeekEarn=weekShifts.filter(s=>s.date.slice(0,7)===thisMonth).reduce((acc,s)=>acc+s.hours*getShiftRate(s),0);
+        if(weekEarn>0) moP+=p.amount*(moWeekEarn/weekEarn);
+      }
+      return;
+    }
+    if(p.type==='day'){
+      const pMonth=p.periodKey?p.periodKey.slice(0,7):'';
+      if(pMonth===thisMonth) moP+=p.amount;
+    }
+  });
+
+  document.getElementById('at-hours').textContent=fh(atH);
+  document.getElementById('at-earned').textContent=fm(atE);
+  document.getElementById('at-paid').textContent=fm(atP);
+  document.getElementById('at-owed').textContent=fm(Math.max(0,atE-atP));
+
+  document.getElementById('mo-hours').textContent=fh(moH);
+  document.getElementById('mo-earned').textContent=fm(moE);
+  document.getElementById('mo-paid').textContent=fm(moP);
+  document.getElementById('mo-owed').textContent=fm(Math.max(0,moE-moP));
+}
+
+function renderPeriods(){
+  const area=document.getElementById('periods-area');
+  area.innerHTML='';
+  if(!shifts.length){
+    area.innerHTML='<div class="empty-state">No shifts yet — tap the + button to log your first shift.</div>';
+    return;
+  }
+  if(currentView==='all'){ renderFlat(area); return; }
+
+  const rate=getRate();
+  let keyFn,labelFn;
+  if(currentView==='day'){
+    keyFn=d=>d; labelFn=k=>fd(k);
+  } else if(currentView==='week'){
+    keyFn=d=>weekKey(d);
+    labelFn=k=>{const[a,b]=k.split('__');return fd(a)+' – '+fd(b);};
+  } else {
+    keyFn=d=>d.slice(0,7);
+    labelFn=k=>{const[y,m]=k.split('-');return mname(m)+' '+y;};
+  }
+
+  const map={};
+  shifts.forEach(s=>{
+    const k=keyFn(s.date);
+    if(!map[k])map[k]={shifts:[],hours:0,earn:0};
+    map[k].shifts.push(s);
+    map[k].hours+=s.hours;
+    map[k].earn+=s.hours*getShiftRate(s);
+  });
+
+  Object.keys(map).sort((a,b)=>b.localeCompare(a)).forEach(k=>{
+    const d=map[k];
+    const paid=paidFor(k,currentView);
+    const owed=Math.max(0,d.earn-paid);
+    const isPaid=paid>=d.earn-0.005&&d.earn>0;
+    const bid='b_'+k.replace(/[^a-z0-9]/gi,'_');
+    const safeLabel=labelFn(k).replace(/'/g,"\\'");
+
+    const markBtn=isPaid
+      ? `<span class="badge badge-paid">Paid</span>`
+      : `<button class="btn-paid" onclick="event.stopPropagation();markPaid('${k}','${currentView}','${safeLabel}','${owed.toFixed(2)}')">Mark paid ${fm(owed)}</button>`;
+
+    const footerBtn=!isPaid
+      ? `<button class="btn-paid" onclick="markPaid('${k}','${currentView}','${safeLabel}','${owed.toFixed(2)}')">Mark paid ${fm(owed)}</button>`
+      : `<span class="badge badge-paid">Fully paid</span>`;
+
+    const el=document.createElement('div');
+    el.className='period-block';
+    el.innerHTML=`
+      <div class="period-header" onclick="tog('${bid}')">
+        <div class="period-left">
+          <div class="period-name">${labelFn(k)}</div>
+          <div class="period-meta">${fh(d.hours)} · ${d.shifts.length} shift${d.shifts.length!==1?'s':''}</div>
+        </div>
+        <div class="period-right">
+          ${markBtn}
+          <span class="period-earn">${fm(d.earn)}</span>
+          <div class="chevron" id="cv_${bid}"></div>
+        </div>
+      </div>
+      <div class="period-body collapsed" id="${bid}">
+        <table class="inner-table">
+          <thead><tr>
+            <th style="width:26%">Date</th>
+            <th style="width:28%">Note / time</th>
+            <th style="width:18%">Hours</th>
+            <th style="width:18%">Earned</th>
+            <th style="width:10%"></th>
+          </tr></thead>
+          <tbody>${d.shifts.map(s=>`
+            <tr>
+              <td>${fd(s.date)}</td>
+              <td title="${(s.note||s.start+'–'+s.end).replace(/"/g,'')}">${s.note||s.start+'–'+s.end}</td>
+              <td style="font-family:var(--mono)">${fh(s.hours)}</td>
+              <td style="font-family:var(--mono);color:var(--green)">
+                ${fm(s.hours*getShiftRate(s))}
+                ${s.rate ? `<div style="font-size:9px;color:var(--text3);margin-top:-2px">@ £${s.rate.toFixed(2)}</div>` : ''}
+              </td>
+              <td><button class="btn-del" onclick="removeShift(${s.id})">✕</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+        <div class="period-footer">
+          <div class="footer-stats">
+            <span>Total: <strong>${fm(d.earn)}</strong></span>
+            <span style="color:var(--green)">Paid: <strong>${fm(paid)}</strong></span>
+            <span style="color:${owed>0?'var(--amber)':'var(--green)'}">Owed: <strong>${fm(owed)}</strong></span>
+          </div>
+          ${footerBtn}
+        </div>
+      </div>`;
+    area.appendChild(el);
+  });
+}
+
+function renderFlat(area){
+  const rate=getRate();
+  const el=document.createElement('div');
+  el.className='period-block';
+  el.innerHTML=`<table class="inner-table">
+    <thead><tr>
+      <th style="width:24%">Date</th>
+      <th style="width:26%">Note / time</th>
+      <th style="width:18%">Hours</th>
+      <th style="width:18%">Earned</th>
+      <th style="width:14%"></th>
+    </tr></thead>
+    <tbody>${shifts.map(s=>`
+      <tr>
+        <td>${fd(s.date)}</td>
+        <td>${s.note||s.start+'–'+s.end}</td>
+        <td style="font-family:var(--mono)">${fh(s.hours)}</td>
+        <td style="font-family:var(--mono);color:var(--green)">
+          ${fm(s.hours*getShiftRate(s))}
+          ${s.rate ? `<div style="font-size:9px;color:var(--text3);margin-top:-2px">@ £${s.rate.toFixed(2)}</div>` : ''}
+        </td>
+        <td><button class="btn-del" onclick="removeShift(${s.id})">✕</button></td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+  area.appendChild(el);
+}
+
+function tog(id){
+  document.getElementById(id).classList.toggle('collapsed');
+  const c=document.getElementById('cv_'+id);
+  if(c)c.classList.toggle('up');
+}
+
+function renderPayHistory(){
+  const area=document.getElementById('pay-history-area');
+  if(!payments.length){
+    area.innerHTML='<div class="empty-state">No payments yet — click "Mark paid" on any period above.</div>';
+    return;
+  }
+  area.innerHTML=payments.map(p=>`
+    <div class="pay-row">
+      <div>
+        <div style="font-size:14px;font-weight:500;color:var(--text)">${p.label}</div>
+        <div style="font-size:12px;color:var(--text2)">${fd(p.date)} · ${p.type}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <span style="font-family:var(--mono);font-size:15px;font-weight:500;color:var(--green)">${fm(p.amount)}</span>
+        <button class="btn-undo" onclick="undoPaid(${p.id})">Undo</button>
+      </div>
+    </div>`).join('');
+}
+
+// Initial render handled by DOMContentLoaded above
+</script>
+</body>
+</html>
