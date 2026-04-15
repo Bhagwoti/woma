@@ -550,8 +550,6 @@ function renderPeriods(){
     return;
   }
   if(currentView==='all'){ renderFlat(area); return; }
-
-  const rate=getRate();
   let keyFn,labelFn;
   if(currentView==='day'){
     keyFn=d=>d; labelFn=k=>fd(k);
@@ -605,10 +603,11 @@ function renderPeriods(){
       <div class="period-body collapsed" id="${bid}">
         <table class="inner-table">
           <thead><tr>
-            <th style="width:26%">Date</th>
-            <th style="width:28%">Note / time</th>
-            <th style="width:18%">Hours</th>
-            <th style="width:18%">Earned</th>
+            <th style="width:20%">Date</th>
+            <th style="width:24%">Note / time</th>
+            <th style="width:14%">Hours</th>
+            <th style="width:18%">Rate</th>
+            <th style="width:14%">Earned</th>
             <th style="width:10%"></th>
           </tr></thead>
           <tbody>${d.shifts.map(s=>`
@@ -616,9 +615,9 @@ function renderPeriods(){
               <td>${fd(s.date)}</td>
               <td title="${(s.note||s.start+'–'+s.end).replace(/"/g,'')}">${s.note||s.start+'–'+s.end}</td>
               <td style="font-family:var(--mono)">${fh(s.hours)}</td>
+              <td style="font-family:var(--mono)">${fm(getShiftRate(s))}/hr</td>
               <td style="font-family:var(--mono);color:var(--green)">
                 ${fm(s.hours*getShiftRate(s))}
-                ${s.rate ? `<div style="font-size:9px;color:var(--text3);margin-top:-2px">@ £${s.rate.toFixed(2)}</div>` : ''}
               </td>
               <td><button class="btn-del" onclick="removeShift(${s.id})">✕</button></td>
             </tr>`).join('')}
@@ -638,25 +637,25 @@ function renderPeriods(){
 }
 
 function renderFlat(area){
-  const rate=getRate();
   const el=document.createElement('div');
   el.className='period-block';
   el.innerHTML=`<table class="inner-table">
     <thead><tr>
-      <th style="width:24%">Date</th>
-      <th style="width:26%">Note / time</th>
-      <th style="width:18%">Hours</th>
-      <th style="width:18%">Earned</th>
-      <th style="width:14%"></th>
+      <th style="width:20%">Date</th>
+      <th style="width:24%">Note / time</th>
+      <th style="width:14%">Hours</th>
+      <th style="width:18%">Rate</th>
+      <th style="width:14%">Earned</th>
+      <th style="width:10%"></th>
     </tr></thead>
     <tbody>${shifts.map(s=>`
       <tr>
         <td>${fd(s.date)}</td>
         <td>${s.note||s.start+'–'+s.end}</td>
         <td style="font-family:var(--mono)">${fh(s.hours)}</td>
+        <td style="font-family:var(--mono)">${fm(getShiftRate(s))}/hr</td>
         <td style="font-family:var(--mono);color:var(--green)">
           ${fm(s.hours*getShiftRate(s))}
-          ${s.rate ? `<div style="font-size:9px;color:var(--text3);margin-top:-2px">@ £${s.rate.toFixed(2)}</div>` : ''}
         </td>
         <td><button class="btn-del" onclick="removeShift(${s.id})">✕</button></td>
       </tr>`).join('')}
