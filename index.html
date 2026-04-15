@@ -34,6 +34,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15
 .settings-actions{display:flex;gap:10px;flex-wrap:wrap}
 .btn-outline{padding:8px 14px;border:1px solid var(--border);background:#fff;border-radius:var(--radius);font-family:var(--font);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px}
 .btn-outline:hover{background:var(--surface2)}
+.segmented-control{display:flex;gap:3px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:3px;width:fit-content}
+.segmented-control button{padding:7px 12px;border:1px solid transparent;background:transparent;border-radius:7px;font-family:var(--font);font-size:13px;color:var(--text2);cursor:pointer;transition:all 0.12s}
+.segmented-control button.active{background:var(--surface);color:var(--text);font-weight:500;border-color:var(--border)}
 
 /* stats grid — 4 cols all-time, 4 cols this month */
 .stats-section{margin-bottom:18px}
@@ -78,6 +81,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15
 .inner-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
 .inner-table tr:last-child td{border-bottom:none}
 .inner-table tr:hover td{background:var(--surface2)}
+.time-cell-btn{display:block;width:100%;border:none;background:transparent;padding:0;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.time-cell-btn:hover{color:var(--accent)}
+.time-subtle{display:block;font-size:11px;color:var(--text3);margin-top:2px}
 
 .period-footer{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--surface2);border-top:1px solid var(--border);flex-wrap:wrap;gap:7px}
 .footer-stats{display:flex;gap:12px;font-family:var(--mono);font-size:12px;flex-wrap:wrap;color:var(--text)}
@@ -95,6 +101,18 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15
 .btn-undo:hover{opacity:0.75}
 .btn-del{color:var(--red);background:transparent;border:none;font-size:12px;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:var(--font)}
 .btn-del:hover{background:var(--red-bg)}
+.shift-action-wrap{display:flex;justify-content:flex-end}
+.shift-menu-btn{width:30px;height:30px;border:1px solid var(--border);border-radius:50%;background:var(--surface);color:var(--text2);cursor:pointer;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center}
+.shift-menu-btn:hover{background:var(--surface2);color:var(--text)}
+.shift-menu-item{display:block;width:100%;text-align:left;border:none;background:transparent;border-radius:8px;padding:9px 10px;font-family:var(--font);font-size:13px;color:var(--text);cursor:pointer}
+.shift-menu-item:hover{background:var(--surface2)}
+.shift-menu-item.danger{color:var(--red)}
+.shift-paid-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:999px;background:var(--green-bg);color:var(--green-text);font-size:10px;font-weight:500;margin-top:4px}
+.form-row-tight{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.action-sheet-title{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px}
+.action-sheet-btn{width:100%;border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:12px 14px;font-family:var(--font);font-size:14px;text-align:left;color:var(--text);cursor:pointer;margin-bottom:8px}
+.action-sheet-btn:hover{background:var(--surface2)}
+.action-sheet-btn.danger{color:var(--red)}
 
 /* ── FLOATING ADD BUTTON ── */
 .fab{
@@ -141,13 +159,22 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15
 .btn-add-shift:hover{background:#0F6E56}
 .btn-cancel{width:100%;padding:11px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font);font-size:14px;cursor:pointer}
 .btn-cancel:hover{background:var(--surface2)}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:6px}
+.detail-item{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px}
+.detail-item-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px}
+.detail-item-value{font-size:14px;color:var(--text);font-family:var(--mono)}
+.detail-note{margin-top:12px;padding:11px 12px;border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:14px}
 
 @media(max-width:560px){
   .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .stat-val{font-size:16px}
   .inner-table th:nth-child(3),.inner-table td:nth-child(3){display:none}
   .period-right{gap:5px}
-  .form-row{grid-template-columns:1fr}
+  .form-row,.form-row-tight{grid-template-columns:1fr 1fr}
+  .form-group input{padding:9px 10px;font-size:13px}
+  .modal{padding:20px 16px 24px}
+  .modal-title{margin-bottom:14px}
+  .detail-grid{grid-template-columns:1fr}
   .modal{border-radius:var(--radius-lg)}
   .modal-backdrop{align-items:center;padding:16px}
 }
@@ -227,13 +254,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Log a shift</div>
-    <div class="form-row">
+    <div class="form-row-tight">
       <div class="form-group"><label>Date</label><input type="date" id="inp-date"></div>
       <div class="form-group">
         <label>Shift rate (£)</label>
         <input type="number" id="inp-rate" step="0.50" placeholder="Default">
         <div id="modal-rate-hint" style="font-size:10px;color:var(--text3);margin-top:2px">Default: £12.50/h</div>
       </div>
+    </div>
+    <div class="form-row-tight">
       <div class="form-group"><label>Start time</label><input type="time" id="inp-start"></div>
       <div class="form-group"><label>End time</label><input type="time" id="inp-end"></div>
     </div>
@@ -266,6 +295,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15
     </div>
 
     <div class="settings-group">
+      <label class="settings-label">Time Format</label>
+      <div class="segmented-control">
+        <button type="button" id="timefmt-12" onclick="setTimeFormatSetting('12h')">12h</button>
+        <button type="button" id="timefmt-24" onclick="setTimeFormatSetting('24h')">24h</button>
+      </div>
+      <p style="font-size:12px; color:var(--text2); margin-top:8px">Choose how shift times are shown. Default is 12h.</p>
+    </div>
+
+    <div class="settings-group">
       <label class="settings-label">Data Management</label>
       <div class="settings-actions">
         <button class="btn-outline" onclick="exportData()">
@@ -284,14 +322,41 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15
   </div>
 </div>
 
+<!-- Shift Details Modal -->
+<div class="modal-backdrop" id="shift-details-backdrop" onclick="shiftDetailsBackdropClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Shift details</div>
+    <div id="shift-details-content"></div>
+    <div class="modal-btns" style="grid-template-columns:1fr;margin-top:18px">
+      <button class="btn-add-shift" onclick="closeShiftDetails()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Shift Actions Modal -->
+<div class="modal-backdrop" id="shift-actions-backdrop" onclick="shiftActionsBackdropClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Shift actions</div>
+    <div id="shift-actions-content"></div>
+    <div class="modal-btns" style="grid-template-columns:1fr;margin-top:18px">
+      <button class="btn-cancel" onclick="closeShiftActions()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let shifts   = JSON.parse(localStorage.getItem('wt_shifts_v4')||'[]');
 let payments = JSON.parse(localStorage.getItem('wt_pay_v4')||'[]');
 let savedRate = localStorage.getItem('wt_rate_v4');
+let timeFormat = localStorage.getItem('wt_timefmt_v1') || '12h';
+let activeShiftActionId = null;
 
 // Immediately set the rate if saved
 document.addEventListener('DOMContentLoaded', () => {
   if(savedRate) document.getElementById('hourly-rate').value = savedRate;
+  syncTimeFormatButtons();
   renderAll(); // Ensure first render uses the absolute latest value
 });
 
@@ -303,6 +368,7 @@ function save(){
   localStorage.setItem('wt_shifts_v4', JSON.stringify(shifts));
   localStorage.setItem('wt_pay_v4',    JSON.stringify(payments));
   localStorage.setItem('wt_rate_v4',   getRate());
+  localStorage.setItem('wt_timefmt_v1', timeFormat);
 }
 
 function getRate(){ return parseFloat(document.getElementById('hourly-rate').value)||0; }
@@ -318,6 +384,19 @@ function calcHours(s,e){
 
 function fh(h){ return h.toFixed(2)+'h'; }
 function fm(n){ return '£'+Math.abs(n).toFixed(2); }
+function formatTimeValue(t){
+  if(!t) return '';
+  const [hourStr, minuteStr] = t.split(':');
+  const hour = parseInt(hourStr, 10);
+  if(timeFormat === '24h') return `${hourStr}:${minuteStr}`;
+  const suffix = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}:${minuteStr} ${suffix}`;
+}
+function formatShiftTimeRange(s){
+  if(!s || !s.start || !s.end) return '';
+  return `${formatTimeValue(s.start)} - ${formatTimeValue(s.end)}`;
+}
 function fd(d){
   const[y,mo,day]=d.split('-');
   return parseInt(day)+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(mo)-1]+' '+y;
@@ -334,6 +413,74 @@ function weekKey(dateStr){
 
 function paidFor(key,type){
   return payments.filter(p=>p.periodKey===key&&p.type===type).reduce((a,b)=>a+b.amount,0);
+}
+
+function paidForShift(id){
+  return payments
+    .filter(p=>p.type==='shift'&&String(p.periodKey)===String(id))
+    .reduce((sum,p)=>sum+p.amount,0);
+}
+
+function shiftEarned(s){
+  return s.hours * getShiftRate(s);
+}
+
+function shiftOwed(s){
+  return Math.max(0, shiftEarned(s) - paidForShift(s.id));
+}
+
+function shiftIsPaid(s){
+  return paidForShift(s.id) >= shiftEarned(s) - 0.005 && shiftEarned(s) > 0;
+}
+
+function shiftPaymentLabel(s){
+  const main = s.note || formatShiftTimeRange(s);
+  return `${fd(s.date)} | ${main}`;
+}
+
+function paidForPeriod(key,type){
+  return payments.reduce((sum,p)=>{
+    if(p.type===type && p.periodKey===key) return sum + p.amount;
+    if(p.type!=='shift') return sum;
+    const shift = shifts.find(s=>String(s.id)===String(p.periodKey));
+    if(!shift) return sum;
+    if(type==='day' && shift.date===key) return sum + p.amount;
+    if(type==='week' && weekKey(shift.date)===key) return sum + p.amount;
+    if(type==='month' && shift.date.slice(0,7)===key) return sum + p.amount;
+    if(type==='all') return sum + p.amount;
+    return sum;
+  },0);
+}
+
+function openShiftActions(id){
+  const shift = shifts.find(s=>s.id===id);
+  if(!shift) return;
+  activeShiftActionId = id;
+  const owed = shiftOwed(shift);
+  const payBtn = owed > 0
+    ? `<button class="action-sheet-btn" onclick="markShiftPaid(${id});closeShiftActions()">Make paid</button>`
+    : `<button class="action-sheet-btn" disabled style="opacity:.45;cursor:default">Already paid</button>`;
+  document.getElementById('shift-actions-content').innerHTML = `
+    <div class="action-sheet-title">${fd(shift.date)}</div>
+    ${payBtn}
+    <button class="action-sheet-btn danger" onclick="confirmRemoveShift(${id});closeShiftActions()">Remove shift</button>`;
+  document.getElementById('shift-actions-backdrop').classList.add('open');
+}
+
+function closeShiftActions(){
+  activeShiftActionId = null;
+  document.getElementById('shift-actions-backdrop').classList.remove('open');
+}
+
+function shiftActionsBackdropClick(e){
+  if(e.target===document.getElementById('shift-actions-backdrop')) closeShiftActions();
+}
+
+function renderShiftActions(s){
+  return `
+    <div class="shift-action-wrap">
+      <button class="shift-menu-btn" onclick="event.stopPropagation();openShiftActions(${s.id})" title="Shift actions">⋯</button>
+    </div>`;
 }
 
 /* ── modal ── */
@@ -357,15 +504,26 @@ function backdropClick(e){
 /* ── settings ── */
 function openSettings(){
   document.getElementById('settings-rate').value = getRate();
+  syncTimeFormatButtons();
   document.getElementById('settings-backdrop').classList.add('open');
+}
+function setTimeFormatSetting(nextFormat){
+  timeFormat = nextFormat;
+  syncTimeFormatButtons();
+}
+function syncTimeFormatButtons(){
+  const is12h = timeFormat !== '24h';
+  document.getElementById('timefmt-12').classList.toggle('active', is12h);
+  document.getElementById('timefmt-24').classList.toggle('active', !is12h);
 }
 function closeSettings(){
   const newRate = parseFloat(document.getElementById('settings-rate').value);
   if(!isNaN(newRate)) {
     document.getElementById('hourly-rate').value = newRate;
-    save();
-    renderAll();
   }
+  save();
+  updatePreview();
+  renderAll();
   document.getElementById('settings-backdrop').classList.remove('open');
 }
 function settingsBackdropClick(e){
@@ -373,7 +531,7 @@ function settingsBackdropClick(e){
 }
 
 function exportData(){
-  const data = { shifts, payments, rate: getRate(), version: '4.0' };
+  const data = { shifts, payments, rate: getRate(), timeFormat, version: '4.1' };
   const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -393,6 +551,7 @@ function importData(e){
       if(data.shifts) shifts = data.shifts;
       if(data.payments) payments = data.payments;
       if(data.rate) document.getElementById('hourly-rate').value = data.rate;
+      if(data.timeFormat === '12h' || data.timeFormat === '24h') timeFormat = data.timeFormat;
       save();
       renderAll();
       alert('Data imported successfully!');
@@ -423,6 +582,19 @@ document.getElementById('inp-rate').addEventListener('input',updatePreview);
 document.getElementById('hourly-rate').addEventListener('input',()=>{updatePreview();renderAll();save();});
 
 /* ── add / remove ── */
+function updatePreview(){
+  const s=document.getElementById('inp-start').value;
+  const e=document.getElementById('inp-end').value;
+  const r_over=parseFloat(document.getElementById('inp-rate').value);
+  const el=document.getElementById('preview-bar');
+  if(s&&e){
+    const h=calcHours(s,e),r=isNaN(r_over)?getRate():r_over;
+    el.textContent=`${formatTimeValue(s)} - ${formatTimeValue(e)}  |  ${fh(h)} x ${fm(r)}/hr = ${fm(h*r)}`;
+  } else {
+    el.textContent='Enter start and end time to preview';
+  }
+}
+
 function addShift(){
   const date=document.getElementById('inp-date').value;
   const start=document.getElementById('inp-start').value;
@@ -439,9 +611,14 @@ function addShift(){
   save();renderAll();closeModal();
 }
 
-function removeShift(id){
+function confirmRemoveShift(id){
   if(!confirm('Remove this shift?'))return;
+  removeShift(id);
+}
+
+function removeShift(id){
   shifts=shifts.filter(s=>s.id!==id);
+  payments=payments.filter(p=>!(p.type==='shift'&&String(p.periodKey)===String(id)));
   save();renderAll();
 }
 
@@ -450,9 +627,71 @@ function markPaid(key,type,label,amount){
   save();renderAll();
 }
 
+function markShiftPaid(id){
+  const shift = shifts.find(s=>s.id===id);
+  if(!shift) return;
+  const owed = shiftOwed(shift);
+  if(owed<=0) return;
+  payments.unshift({
+    id:Date.now(),
+    type:'shift',
+    periodKey:String(id),
+    amount:parseFloat(owed.toFixed(2)),
+    date:todayStr(),
+    label:shiftPaymentLabel(shift)
+  });
+  save();renderAll();
+}
+
 function undoPaid(id){
   payments=payments.filter(p=>p.id!==id);
   save();renderAll();
+}
+
+function openShiftDetails(id){
+  const shift = shifts.find(s => s.id === id);
+  if(!shift) return;
+  const noteBlock = shift.note
+    ? `<div class="detail-note"><strong>Note:</strong> ${shift.note}</div>`
+    : '';
+  document.getElementById('shift-details-content').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-item-label">Date</div>
+        <div class="detail-item-value">${fd(shift.date)}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-item-label">Duration</div>
+        <div class="detail-item-value">${fh(shift.hours)}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-item-label">Start</div>
+        <div class="detail-item-value">${formatTimeValue(shift.start)}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-item-label">End</div>
+        <div class="detail-item-value">${formatTimeValue(shift.end)}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-item-label">Rate</div>
+        <div class="detail-item-value">${fm(getShiftRate(shift))}/hr</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-item-label">Earned</div>
+        <div class="detail-item-value">${fm(shift.hours*getShiftRate(shift))}</div>
+      </div>
+    </div>
+    <div class="detail-note"><strong>Time range:</strong> ${formatShiftTimeRange(shift)}</div>
+    ${noteBlock}`;
+  document.getElementById('shift-details-backdrop').classList.add('open');
+}
+
+function closeShiftDetails(){
+  document.getElementById('shift-details-backdrop').classList.remove('open');
+}
+
+function shiftDetailsBackdropClick(e){
+  if(e.target===document.getElementById('shift-details-backdrop')) closeShiftDetails();
 }
 
 function setView(v,btn){
@@ -528,6 +767,11 @@ function renderStats(){
     if(p.type==='day'){
       const pMonth=p.periodKey?p.periodKey.slice(0,7):'';
       if(pMonth===thisMonth) moP+=p.amount;
+      return;
+    }
+    if(p.type==='shift'){
+      const shift = shifts.find(s=>String(s.id)===String(p.periodKey));
+      if(shift && shift.date.slice(0,7)===thisMonth) moP+=p.amount;
     }
   });
 
@@ -572,7 +816,7 @@ function renderPeriods(){
 
   Object.keys(map).sort((a,b)=>b.localeCompare(a)).forEach(k=>{
     const d=map[k];
-    const paid=paidFor(k,currentView);
+    const paid=paidForPeriod(k,currentView);
     const owed=Math.max(0,d.earn-paid);
     const isPaid=paid>=d.earn-0.005&&d.earn>0;
     const bid='b_'+k.replace(/[^a-z0-9]/gi,'_');
@@ -580,10 +824,10 @@ function renderPeriods(){
 
     const markBtn=isPaid
       ? `<span class="badge badge-paid">Paid</span>`
-      : `<button class="btn-paid" onclick="event.stopPropagation();markPaid('${k}','${currentView}','${safeLabel}','${owed.toFixed(2)}')">Mark paid ${fm(owed)}</button>`;
+      : `<button class="btn-paid" onclick="event.stopPropagation();markPaid('${k}','${currentView}','${safeLabel}','${owed.toFixed(2)}')">Make paid</button>`;
 
     const footerBtn=!isPaid
-      ? `<button class="btn-paid" onclick="markPaid('${k}','${currentView}','${safeLabel}','${owed.toFixed(2)}')">Mark paid ${fm(owed)}</button>`
+      ? `<button class="btn-paid" onclick="markPaid('${k}','${currentView}','${safeLabel}','${owed.toFixed(2)}')">Make paid</button>`
       : `<span class="badge badge-paid">Fully paid</span>`;
 
     const el=document.createElement('div');
@@ -613,13 +857,19 @@ function renderPeriods(){
           <tbody>${d.shifts.map(s=>`
             <tr>
               <td>${fd(s.date)}</td>
-              <td title="${(s.note||s.start+'–'+s.end).replace(/"/g,'')}">${s.note||s.start+'–'+s.end}</td>
+              <td>
+                <button class="time-cell-btn" onclick="openShiftDetails(${s.id})" title="View shift details">
+                  ${s.note || formatShiftTimeRange(s)}
+                  <span class="time-subtle">${s.note ? formatShiftTimeRange(s) : 'Tap to view details'}</span>
+                </button>
+                ${shiftIsPaid(s) ? '<span class="shift-paid-pill">Paid</span>' : ''}
+              </td>
               <td style="font-family:var(--mono)">${fh(s.hours)}</td>
               <td style="font-family:var(--mono)">${fm(getShiftRate(s))}/hr</td>
               <td style="font-family:var(--mono);color:var(--green)">
                 ${fm(s.hours*getShiftRate(s))}
               </td>
-              <td><button class="btn-del" onclick="removeShift(${s.id})">✕</button></td>
+              <td>${renderShiftActions(s)}</td>
             </tr>`).join('')}
           </tbody>
         </table>
@@ -651,13 +901,19 @@ function renderFlat(area){
     <tbody>${shifts.map(s=>`
       <tr>
         <td>${fd(s.date)}</td>
-        <td>${s.note||s.start+'–'+s.end}</td>
+        <td>
+          <button class="time-cell-btn" onclick="openShiftDetails(${s.id})" title="View shift details">
+            ${s.note || formatShiftTimeRange(s)}
+            <span class="time-subtle">${s.note ? formatShiftTimeRange(s) : 'Tap to view details'}</span>
+          </button>
+          ${shiftIsPaid(s) ? '<span class="shift-paid-pill">Paid</span>' : ''}
+        </td>
         <td style="font-family:var(--mono)">${fh(s.hours)}</td>
         <td style="font-family:var(--mono)">${fm(getShiftRate(s))}/hr</td>
         <td style="font-family:var(--mono);color:var(--green)">
           ${fm(s.hours*getShiftRate(s))}
         </td>
-        <td><button class="btn-del" onclick="removeShift(${s.id})">✕</button></td>
+        <td>${renderShiftActions(s)}</td>
       </tr>`).join('')}
     </tbody>
   </table>`;
